@@ -501,6 +501,97 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     cf.hidden=true;document.getElementById('cfdone').hidden=false;
   });
 })();
+</script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  if (typeof window.supabase === 'undefined') return;
+
+  const supabase = window.supabase.createClient(
+    'https://wbvflaqqiomqrdtndkqe.supabase.co',
+    'sb_publishable_9UYtKnGykZ3Pha3NHNU67Q_wEAwHopZ'
+  );
+
+  const f = document.getElementById('f');
+  const done = document.getElementById('done');
+  if (!f || !done) return;
+
+  function setErr(name, message) {
+    const el = f.querySelector('[data-for="' + name + '"]');
+    if (el) el.textContent = message || '';
+    return !message;
+  }
+
+  f.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    const d = new FormData(f);
+    let ok = true;
+
+    const name = (d.get('name') || '').trim();
+    const id = (d.get('id') || '').trim();
+    const age = Number(d.get('age'));
+    const height = Number(d.get('height'));
+    const q = d.getAll('q');
+
+    ok = setErr('name', name.split(/\s+/).length < 2 ? 'Enter your first and last name.' : '') && ok;
+    ok = setErr('id', /^\d{7,8}$/.test(id) ? '' : 'Enter a 7 or 8 digit ID number.') && ok;
+    ok = setErr('age', age >= 18 && age <= 60 ? '' : 'Enter an age between 18 and 60.') && ok;
+    ok = setErr('height', height >= 120 && height <= 220 ? '' : 'Enter your height in centimetres.') && ok;
+    ok = setErr('service', d.get('service') ? '' : 'Choose a service.') && ok;
+    ok = setErr('q', q.length ? '' : 'Choose your highest qualification.') && ok;
+
+    const phone = (d.get('phone') || '').replace(/[\s-]/g, '');
+    ok = setErr('phone', /^(?:\+254|0)[17]\d{8}$/.test(phone) ? '' : 'Enter a valid Kenyan number, for example 0712 345 678.') && ok;
+
+    const file = d.get('doc');
+    let fileMsg = '';
+    if (!file || !file.name) fileMsg = 'Upload your qualification document.';
+    else if (!/\.(pdf|jpe?g|png)$/i.test(file.name)) fileMsg = 'Use a PDF, JPG or PNG file.';
+    else if (file.size > 5 * 1024 * 1024) fileMsg = 'The file must be 5 MB or smaller.';
+    ok = setErr('doc', fileMsg) && ok;
+
+    if (!ok) {
+      const first = f.querySelector('.err:not(:empty)');
+      if (first) first.scrollIntoView({ block: 'center' });
+      return;
+    }
+
+    const bytes = new Uint8Array(6);
+    crypto.getRandomValues(bytes);
+    const ref = 'KDF-' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+
+    const btn = f.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    try {
+      const { error } = await supabase.from('kdf_demo_applications').insert([{
+        reference: ref,
+        full_name: name,
+        phone: phone,
+        national_id: id,
+        age: age,
+        height: height,
+        service: d.get('service') || '',
+        qualification: q[0] || '',
+        status: 'pending',
+        created_at: new Date().toISOString()
+      }]);
+
+      if (error) throw error;
+
+      done.innerHTML = '<h3 class="sans" style="margin:0 0 8px">Application submitted</h3><p>Your application reference is <strong id="preview-reference"></strong>.</p><p>Keep this reference number. Authorized officers will review your application.</p>';
+      document.getElementById('preview-reference').textContent = ref;
+      f.hidden = true;
+      done.hidden = false;
+      done.scrollIntoView({ block: 'center' });
+    } catch (err) {
+      alert('Submission failed: ' + (err.message || 'Please try again later.'));
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+})();
 </script>
 </body>
 </html>
