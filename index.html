@@ -1,58 +1,66 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabase = window.supabase.createClient(
-  "https://wbvflaqqiomqrdtndkqe.supabase.co",
-  "sb_publishable_9UYtKnGykZ3Pha3NHNU67Q_wEAwHopZ"
-);
-
-(function(){
-  var f = document.getElementById('f');
-  var done = document.getElementById('done');
-  if (!f) return;
-
-  function setErr(n, m){
-    var e = f.querySelector('[data-for="'+n+'"]');
-    if (e) e.textContent = m || '';
-    return !m;
+(function () {
+  if (typeof window.supabase === 'undefined') {
+    console.error('Supabase library failed to load');
+    return;
   }
 
-  f.addEventListener('submit', async function(ev){
+  const supabase = window.supabase.createClient(
+    'https://wbvflaqqiomqrdtndkqe.supabase.co',
+    'sb_publishable_9UYtKnGykZ3Pha3NHNU67Q_wEAwHopZ'
+  );
+
+  const f = document.getElementById('f');
+  const done = document.getElementById('done');
+  if (!f || !done) return;
+
+  function setErr(name, message) {
+    const el = f.querySelector('[data-for="' + name + '"]');
+    if (el) el.textContent = message || '';
+    return !message;
+  }
+
+  f.addEventListener('submit', async function (ev) {
     ev.preventDefault();
-    var d = new FormData(f), ok = true;
-    var name = (d.get('name')||'').trim();
-    var id = (d.get('id')||'').trim();
-    var age = Number(d.get('age'));
-    var h = Number(d.get('height'));
-    var q = d.getAll('q');
+    const d = new FormData(f);
+    let ok = true;
+
+    const name = (d.get('name') || '').trim();
+    const id = (d.get('id') || '').trim();
+    const age = Number(d.get('age'));
+    const height = Number(d.get('height'));
+    const q = d.getAll('q');
 
     ok = setErr('name', name.split(/\s+/).length < 2 ? 'Enter your first and last name.' : '') && ok;
     ok = setErr('id', /^\d{7,8}$/.test(id) ? '' : 'Enter a 7 or 8 digit ID number.') && ok;
     ok = setErr('age', age >= 18 && age <= 60 ? '' : 'Enter an age between 18 and 60.') && ok;
-    ok = setErr('height', h >= 120 && h <= 220 ? '' : 'Enter your height in centimetres.') && ok;
+    ok = setErr('height', height >= 120 && height <= 220 ? '' : 'Enter your height in centimetres.') && ok;
     ok = setErr('service', d.get('service') ? '' : 'Choose a service.') && ok;
     ok = setErr('q', q.length ? '' : 'Choose your highest qualification.') && ok;
 
-    var ph = (d.get('phone')||'').replace(/[\s-]/g,'');
-    ok = setErr('phone', /^(?:\+254|0)[17]\d{8}$/.test(ph) ? '' : 'Enter a valid Kenyan number, for example 0712 345 678.') && ok;
+    const phone = (d.get('phone') || '').replace(/[\s-]/g, '');
+    ok = setErr('phone', /^(?:\+254|0)[17]\d{8}$/.test(phone) ? '' : 'Enter a valid Kenyan number, for example 0712 345 678.') && ok;
 
-    var fl = d.get('doc'), msg = '';
-    if (!fl || !fl.name) msg = 'Upload your qualification document.';
-    else if (!/\.(pdf|jpe?g|png)$/i.test(fl.name)) msg = 'Use a PDF, JPG or PNG file.';
-    else if (fl.size > 5*1024*1024) msg = 'The file must be 5 MB or smaller.';
-    ok = setErr('doc', msg) && ok;
+    const file = d.get('doc');
+    let fileMsg = '';
+    if (!file || !file.name) fileMsg = 'Upload your qualification document.';
+    else if (!/\.(pdf|jpe?g|png)$/i.test(file.name)) fileMsg = 'Use a PDF, JPG or PNG file.';
+    else if (file.size > 5 * 1024 * 1024) fileMsg = 'The file must be 5 MB or smaller.';
+    ok = setErr('doc', fileMsg) && ok;
 
     if (!ok) {
-      var first = f.querySelector('.err:not(:empty)');
-      if (first) first.scrollIntoView({block:'center'});
+      const first = f.querySelector('.err:not(:empty)');
+      if (first) first.scrollIntoView({ block: 'center' });
       return;
     }
 
-    var bytes = new Uint8Array(6);
+    const bytes = new Uint8Array(6);
     crypto.getRandomValues(bytes);
-    var ref = 'KDF-' + Array.from(bytes, b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+    const ref = 'KDF-' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
 
-    var btn = f.querySelector('button[type="submit"]');
-    var originalText = btn.textContent;
+    const btn = f.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Submitting…';
 
@@ -60,10 +68,10 @@ const supabase = window.supabase.createClient(
       const { error } = await supabase.from('kdf_demo_applications').insert([{
         reference: ref,
         full_name: name,
-        phone: ph,
+        phone: phone,
         national_id: id,
         age: age,
-        height: h,
+        height: height,
         service: d.get('service') || '',
         qualification: q[0] || '',
         status: 'pending',
@@ -76,7 +84,7 @@ const supabase = window.supabase.createClient(
       document.getElementById('preview-reference').textContent = ref;
       f.hidden = true;
       done.hidden = false;
-      done.scrollIntoView({block:'center'});
+      done.scrollIntoView({ block: 'center' });
     } catch (err) {
       alert('Submission failed: ' + (err.message || 'Please try again later.'));
       btn.disabled = false;
