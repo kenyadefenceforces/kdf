@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Administration | Secure Sign-in</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#172b42;background:#f4f7fa}*{box-sizing:border-box}body{margin:0;min-height:100vh}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:default}.shell{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}.side{background:#112b39;color:#fff;padding:27px 18px;display:flex;flex-direction:column;gap:22px}.brand{padding:6px 10px;display:flex;align-items:center;gap:13px;font-weight:800;letter-spacing:.02em}.mark{width:42px;height:42px;display:grid;place-items:center;background:#2d706c;border-radius:12px;font-size:20px}.nav button{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border:0;background:none;color:#d6e6e9;text-align:left;border-radius:10px;margin-bottom:6px}.nav button.active{color:#fff;background:#315265}.side small{margin-top:auto;color:#b7cbd3;padding:10px}.main{padding:32px clamp(18px,4vw,60px)}.main-head{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:28px}.muted{color:#64748b}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:#3d806f;font-weight:800}.title{font-size:clamp(26px,3vw,36px);margin:8px 0}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.button{background:#17695c;border:0;color:white;border-radius:10px;padding:12px 17px;font-weight:700}.button.secondary{background:#e6edf0;color:#233f51}.panel{background:#fff;border:1px solid #e0e8ee;border-radius:16px;padding:22px;box-shadow:0 6px 20px #13273b08}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-bottom:20px}.stats strong{font-size:32px;display:block;margin-top:9px}.stats p{margin:0;color:#607284;font-size:13px}.search{width:100%;max-width:410px;border:1px solid #cbd7e2;border-radius:10px;padding:12px 14px}table{width:100%;border-collapse:collapse;text-align:left}th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#6c7f91}td,th{padding:15px 10px;border-bottom:1px solid #eef2f5;font-size:14px}.empty{text-align:center;padding:48px 16px;color:#607284}.empty strong{color:#1d3948;display:block;margin-bottom:7px}.pill{display:inline-block;background:#e8f4f0;padding:7px 10px;border-radius:30px;font-size:12px;color:#196557;font-weight:700}.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 18% 20%,#dcece9,transparent 45%),#f4f7fa}.login{max-width:430px;width:100%;padding:34px}.login h1{font-size:28px;margin:18px 0 8px}.login p{line-height:1.6}.field{display:block;font-weight:700;font-size:13px;margin:18px 0 5px}.control{width:100%;padding:13px 14px;border:1px solid #bfced9;border-radius:10px;background:#fff}.login .button{width:100%;margin-top:23px}.notice{background:#f0f5f8;color:#395366;padding:12px 14px;border-radius:10px;margin-top:17px;font-size:13px;line-height:1.5}.notice.error{background:#fceeed;color:#962c2c}.hidden{display:none!important}.icon{font-size:20px}.table-scroll{overflow-x:auto}.footer{margin-top:20px;color:#718398;font-size:12px}@media(max-width:760px){.shell{grid-template-columns:1fr}.side{padding:15px;gap:8px}.nav{display:flex}.nav button{width:auto}.side small{display:none}.main{padding:22px 15px}.stats{grid-template-columns:1fr}.main-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<section id="signin" class="login-wrap"><div class="panel login">
+<div class="brand" style="padding:0;color:#143545"><span class="mark" style="color:white">◆</span><span>Administration</span></div>
+<h1>Secure administrator sign-in</h1>
+<p class="muted">Sign in using your authorized administrator credentials.</p>
+<form id="login-form"><label class="field" for="email">Email address</label><input class="control" id="email" name="email" type="email" autocomplete="username" required>
+<label class="field" for="password">Password</label><input class="control" id="password" name="password" type="password" autocomplete="current-password" required>
+<button class="button" id="login-btn" type="submit">Sign in securely</button></form>
+<div id="login-message" class="notice" role="status" aria-live="polite">Administrator access requires an approved account. The public application page is unchanged.</div>
+</div></section>
+<section id="app" class="shell hidden" aria-label="Administrator dashboard">
+<aside class="side"><div class="brand"><span class="mark">◆</span><span>Administration</span></div><nav class="nav" aria-label="Dashboard navigation"><button class="active" data-tab="overview">▦ &nbsp; Overview</button><button data-tab="applications">☷ &nbsp; Applications</button></nav><small>Restricted administrator access</small></aside>
+<main class="main"><div class="main-head"><div><div class="eyebrow">Administrator workspace</div><h1 class="title" id="page-title">Overview</h1><div class="muted" id="signed-in-as"></div></div><div class="toolbar"><button class="button secondary" id="refresh" type="button">Refresh</button><button class="button secondary" id="logout" type="button">Sign out</button></div></div>
+<div class="stats"><div class="panel"><p>Total records</p><strong id="total">0</strong></div><div class="panel"><p>Pending review</p><strong id="pending">0</strong></div><div class="panel"><p>Reviewed</p><strong id="reviewed">0</strong></div></div>
+<section class="panel"><div class="main-head"><div><h2 style="margin:0 0 6px">Application register</h2><span class="muted">Visible to authorized administrators only</span></div><input id="search" class="search" placeholder="Search permitted records" aria-label="Search permitted records"></div><div class="table-scroll"><table><thead><tr><th>Reference</th><th>Name</th><th>Phone</th><th>Service</th><th>Submitted</th><th>Status</th></tr></thead><tbody id="rows"></tbody></table></div><div id="empty" class="empty"><span class="icon">▤</span><strong>No records available</strong><span>Once a separately approved application backend is configured, permitted records can appear here.</span></div></section><div id="app-message" class="footer" role="status" aria-live="polite"></div></main></section>
+<script src="./config.js"></script>
+<script>
+'use strict';
+// This page never writes applicant information. Authentication and reads are
+// disabled until a trusted administrator config and server-side RLS exist.
+const settings=Object.freeze({
+  url: window.ADMIN_SETTINGS?.supabaseUrl || '',
+  key: window.ADMIN_SETTINGS?.publishableKey || ''
+});
+const $=id=>document.getElementById(id);
+const valid=Boolean(/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(settings.url)&&settings.key.startsWith('sb_publishable_'));
+let accessToken='',sessionUser=null,allRows=[];
+const msg=(value,isError=false)=>{const el=$('login-message');el.textContent=value;el.classList.toggle('error',isError)};
+if(valid)msg('Sign in with an administrator account approved for this system.');
+$('login-form').addEventListener('submit',async event=>{
+ event.preventDefault();if(!valid){msg('Administrator authentication is not configured. Please configure the approved Supabase environment first.',true);return}
+ $('login-btn').disabled=true;msg('Authenticating…');
+ try{
+  const response=await fetch(settings.url.replace(/\/$/,'')+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'apikey':settings.key,'Content-Type':'application/json'},body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});
+  const result=await response.json();if(!response.ok||!result.access_token)throw Error('Sign-in failed. Check your credentials and account authorization.');
+  accessToken=result.access_token;sessionUser=result.user;
+  // Server-enforced RLS must restrict this table to authorized administrators.
+  const check=await api('kdf_demo_admin_accounts?select=user_id&user_id=eq.'+encodeURIComponent(sessionUser.id)+'&limit=1');
+  if(!Array.isArray(check)||check.length!==1)throw Error('This account is not authorized for administration.');
+  $('signin').classList.add('hidden');$('app').classList.remove('hidden');$('signed-in-as').textContent=sessionUser.email||'Authorized administrator';$('password').value='';await load();
+ }catch(e){accessToken='';sessionUser=null;msg(e.message||'Unable to sign in.',true)}finally{$('login-btn').disabled=false}
+});
+async function api(path){
+ if(!accessToken)throw Error('Not signed in');
+ const response=await fetch(settings.url.replace(/\/$/,'')+'/rest/v1/'+path,{headers:{apikey:settings.key,Authorization:'Bearer '+accessToken,Accept:'application/json'},cache:'no-store'});
+ if(!response.ok)throw Error('Access denied or database not configured ('+response.status+').');return response.json();
+}
+async function load(){try{
+ // This demo register must contain fictional records only until deployment approved.
+ const data=await api('kdf_demo_applications?select=reference,full_name,phone,service,created_at,status&order=created_at.desc&limit=200');
+ if(!Array.isArray(data))throw Error('Unexpected response');allRows=data;render();$('app-message').textContent='Application register loaded.';
+ }catch(e){allRows=[];render();$('app-message').textContent=e.message+' No applicant records were modified.'}}
+function render(){const term=$('search').value.trim().toLowerCase();const visible=allRows.filter(x=>String(x.reference||'').toLowerCase().includes(term));$('total').textContent=allRows.length;$('pending').textContent=allRows.filter(x=>x.status==='pending').length;$('reviewed').textContent=allRows.filter(x=>x.status==='reviewed').length;$('rows').replaceChildren();
+ for(const r of visible){const tr=document.createElement('tr');for(const value of [r.reference||'—',r.full_name||'—',r.phone||'—',r.service||'—',r.created_at?new Date(r.created_at).toLocaleString():'—',r.status||'—']){const td=document.createElement('td');td.textContent=value;tr.append(td)}$('rows').append(tr)}$('empty').classList.toggle('hidden',visible.length!==0)}
+$('search').addEventListener('input',render);$('refresh').addEventListener('click',load);$('logout').addEventListener('click',()=>{accessToken='';sessionUser=null;allRows=[];render();$('app').classList.add('hidden');$('signin').classList.remove('hidden');msg(valid?'Signed out.':'Administrator authentication is not configured.');});
+for(const button of document.querySelectorAll('[data-tab]'))button.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===button));$('page-title').textContent=button.dataset.tab==='overview'?'Overview':'Applications'});
+</script>
+</body></html>
